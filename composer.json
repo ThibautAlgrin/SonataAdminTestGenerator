@@ -6,6 +6,9 @@
     "autoload": {
         "psr-4": { "BVM\\SonataAdminTestsGeneratorBundle\\": "" }
     },
+    "require-dev": {
+        "fzaninotto/faker": "^1.5"
+    },
     "extra": {
         "branch-alias": {
             "dev-master": "1.0.x-dev"

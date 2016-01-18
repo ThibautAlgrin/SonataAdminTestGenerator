@@ -47,7 +47,7 @@ class SonataAdminTestsGenerator extends Generator
          */
         foreach ($formField as $name => $desc) {
             if (!isset($this->mockerFactory[$desc->getType()])) {
-                throw new \Exception(sprintf("The type [%s] is missing", $desc->getType()));
+                throw new \Exception(sprintf("The type [%s] is missing for %s", $desc->getType(), $name));
             }
             /** @var MockerInterface $mocker */
             $mocker = $this->mockerFactory[$desc->getType()];
