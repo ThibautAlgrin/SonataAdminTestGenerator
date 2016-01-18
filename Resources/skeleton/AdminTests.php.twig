@@ -1,0 +1,188 @@
+<?php
+
+{% set route_list = {} %}
+{% for route in admin.routes.elements %}
+    {% set name =  route.defaults._sonata_name %}
+    {% set action = name|split('_')|last %}
+    {% set route_list = route_list|merge({(action):(name)}) %}
+{% endfor %}
+
+namespace {{ namespace }};
+
+use FOS\UserBundle\Model\UserInterface;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Component\BrowserKit\Cookie;
+
+class {{ admin_name }}Test extends WebTestCase
+{
+    /**
+     * @var Client
+     */
+    private $client;
+
+    protected function createAuthorizedClient()
+    {
+        $this->client = static::createClient();
+        $container = $this->client->getContainer();
+
+        $session = $container->get('session');
+        /** @var $userManager \FOS\UserBundle\Doctrine\UserManager */
+        $userManager = $container->get('fos_user.user_manager');
+        /** @var $loginManager \FOS\UserBundle\Security\LoginManager */
+        $loginManager = $container->get('fos_user.security.login_manager');
+        $firewallName = $container->getParameter('fos_user.firewall_name');
+        /** @var UserInterface $user */
+        $user = $userManager->findUserBy(array('username' => 'admin'));
+        $loginManager->loginUser($firewallName, $user);
+
+        // save the login token into the session and put it in a cookie
+        $container->get('session')->set('_security_' . $firewallName,
+        serialize($container->get('security.token_storage')->getToken()));
+        $container->get('session')->save();
+        $this->client->getCookieJar()->set(new Cookie($session->getName(), $session->getId()));
+    }
+
+    public function setUp()
+    {
+        $this->createAuthorizedClient();
+    }
+
+    public function checkTranslationDataCollector()
+    {
+        /** @var \Symfony\Component\Translation\DataCollector\TranslationDataCollector $translationDataCollector */
+        $translationDataCollector = $this->client->getProfile()->getCollector('translation');
+        $this->assertEquals(0, $translationDataCollector->getCountMissings());
+    }
+
+    public function testAuthentification() {
+        $this->client->request(Request::METHOD_GET, '/admin/');
+        if ($this->client->getResponse()->isRedirection()) {
+            $this->client->followRedirect();
+        }
+        $this->assertTrue($this->client->getResponse()->isSuccessful());
+    }
+
+{% if admin.hasRoute('list') %}
+   /**
+    * @depends testAuthentification
+    */
+    public function testListIsSuccessfull()
+    {
+        $this->client->enableProfiler();
+        $container = $this->client->getContainer();
+        $url = $container->get('router')->generate('{{ route_list["list"] }}');
+        $crawler = $this->client->request(Request::METHOD_GET,$url);
+        $this->assertTrue($this->client->getResponse()->isSuccessful());
+        $this->checkTranslationDataCollector();
+    }
+{% endif %}
+
+{% if admin.hasRoute('create') %}
+   /**
+    * @depends testAuthentification
+    */
+    public function testCreateIsSuccessfull()
+    {
+        $this->client->enableProfiler();
+        $container = $this->client->getContainer();
+        $url = $container->get('router')->generate('{{ route_list["create"] }}', array('uniqid' => 'test'));
+        $crawler = $this->client->request(Request::METHOD_GET,$url);
+        $this->assertTrue($this->client->getResponse()->isSuccessful());
+        $this->checkTranslationDataCollector();
+        // Search Form + Create Form
+        $this->assertEquals(2, $crawler->filter('form')->count());
+{% for field_name, field_desc in admin.formFieldDescriptions %}
+{% if field_desc.type == "sonata_type_collection" %}
+        $this->assertEquals(0, $crawler->filter('[name="test[{{ field_name }}]"]')->count());
+{% else %}
+        $this->assertEquals(1, $crawler->filter('[name="test[{{ field_name }}]"]')->count());
+{% endif %}
+{% endfor %}
+        $data = array();
+        $extract = $crawler->filter('input[name="test[_token]"]')->extract(array('value'));
+        $data['_token'] = $extract[0];
+{% for field_name, field_desc in admin.formFieldDescriptions %}
+{% if fakeData[field_name] is iterable %}
+{% for value in fakeData[field_name] %}
+        $data['{{ field_name }}'][] = '{{ value }}';
+{% endfor %}
+{% else %}
+        $data['{{ field_name }}'] = '{{ fakeData[field_name] }}';
+{% endif %}
+{% endfor %}
+        $this->client->request(Request::METHOD_POST, $url, array('test' => $data), array());
+        $this->assertTrue($container->get('session')->getFlashBag()->has('sonata_flash_success'));
+        $crawler = $this->client->followRedirect();
+        $this->assertTrue($this->client->getResponse()->isSuccessful());
+        if ($profile = $this->client->getProfile())
+        {
+            if($profile->getCollector('form')->getData()['nb_errors'] > 0)
+            {
+                var_dump($profile->getCollector('form')->getData()['forms']['test']['errors']);
+            }
+            $this->assertEquals(0,$profile->getCollector('form')->getData()['nb_errors']);
+        }
+        $id = $this->client->getRequest()->get('id');
+        $this->assertTrue(null !== $id);
+        return $id;
+    }
+    {% endif %}
+    {#{% if admin.hasRoute('show') %}
+    /**
+     * @depends testCreateIsSuccessfull
+     */
+    public function testShowIsSuccessfull($id)
+    {
+        $container = $this->client->getContainer();
+        $url = $container->get('router')->generate('{{ route_list["show"] }}', array(
+                    'id' => $id,
+                    'uniqid' => 'test'
+                )
+            )
+        );
+        $crawler = $this->client->request(Request::METHOD_GET,$url);
+        $this->assertTrue($this->client->getResponse()->isSuccessful());
+        return $id;
+    }
+    {% endif %}
+    {% if admin.hasRoute('edit') %}
+    /**
+     * @depends testShowIsSuccessfull
+     */
+    public function testEditIsSuccessfull($id)
+    {
+        $container = $this->client->getContainer();
+        $url = sprintf('%s%s', $this->domain, $container->get('router')->generate('{{ route_list["edit"] }}', array(
+            'id' => $id,
+            'uniqid' => 'test'))
+        );
+        $crawler = $this->client->request(Request::METHOD_GET,$url);
+        $this->assertTrue($this->client->getResponse()->isSuccessful());
+        return $id;
+    }
+
+    {% endif %}
+    {% if admin.hasRoute('delete') %}
+    /**
+     * @depends testEditIsSuccessfull
+     */
+    public function testDeleteIsSuccessfull($id)
+    {
+        $container = $this->client->getContainer();
+        $url = sprintf('%s%s', $this->domain, $container->get('router')->generate('{{ route_list["delete"] }}', array(
+            'id' => $id,
+            'uniqid' => 'test'))
+        );
+        $crawler = $this->client->request(Request::METHOD_GET,$url);
+        $this->assertTrue($this->client->getResponse()->isSuccessful());
+        $node = $crawler->filter('form')->first();
+        $crawler = $this->client->submit($node->form());
+        $this->assertTrue($container->get('session')->getFlashBag()->has('sonata_flash_success'));
+        $crawler = $this->client->followRedirect();
+        $this->assertTrue($this->client->getResponse()->isSuccessful());
+    }
+    {% endif %}#}
+
+}
