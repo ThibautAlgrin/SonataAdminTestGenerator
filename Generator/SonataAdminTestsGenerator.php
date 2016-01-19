@@ -28,7 +28,7 @@ class SonataAdminTestsGenerator extends Generator
         $mock = new $class();
         $admin->setSubject($mock);
 		$namespace = $this->getNamespace($admin);
-        $data = $this->generateDatas($admin->getFormFieldDescriptions());
+        $data = $this->generateDatas($admin);
 		return $this->renderFile('AdminTests.php.twig', $filePath, array(
 			'admin' 		=> $admin,
 			'formBuilder'  => $admin->getFormBuilder(),
@@ -39,24 +39,22 @@ class SonataAdminTestsGenerator extends Generator
 		));
 	}
 
-    protected function generateDatas(array $formField) {
+    protected function generateDatas(Admin $admin) {
         $_data = array();
         /**
          * @var string $name
          * @var FieldDescription $desc
          */
-        foreach ($formField as $name => $desc) {
+        foreach ($admin->getFormFieldDescriptions() as $name => $desc) {
             if (!isset($this->mockerFactory[$desc->getType()])) {
                 throw new \Exception(sprintf("The type [%s] is missing for %s", $desc->getType(), $name));
             }
             /** @var MockerInterface $mocker */
             $mocker = $this->mockerFactory[$desc->getType()];
-            // It is a relation
-            if ($desc->getAssociationMapping() != NULL) {
-                $_data[$name] = $mocker->generate($desc->getAssociationMapping());
-            } else {
-                $_data[$name] = $mocker->generate();
-            }
+            $mocker->setAssociationAdmins($desc->getAssociationAdmin());
+            $mocker->setMappingValues($desc->getAssociationMapping());
+            $mocker->setMappingType($desc->getMappingType());
+            $_data[$name] = $mocker->generate();
         }
         return $_data;
     }

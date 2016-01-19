@@ -106,24 +106,23 @@ class {{ admin_name }}Test extends WebTestCase
 {% for field_name, field_desc in admin.formFieldDescriptions %}
 {% if fakeData[field_name] is iterable %}
 {% for value in fakeData[field_name] %}
-        $data['{{ field_name }}'][] = '{{ value }}';
+        $data['{{ field_name }}'][] = {{ value }};
 {% endfor %}
 {% else %}
-        $data['{{ field_name }}'] = '{{ fakeData[field_name] }}';
+        $data['{{ field_name }}'] = {{ fakeData[field_name] }};
 {% endif %}
 {% endfor %}
+        $this->client->enableProfiler();
         $this->client->request(Request::METHOD_POST, $url, array('test' => $data), array());
-        $this->assertTrue($container->get('session')->getFlashBag()->has('sonata_flash_success'));
-        $crawler = $this->client->followRedirect();
-        $this->assertTrue($this->client->getResponse()->isSuccessful());
-        if ($profile = $this->client->getProfile())
-        {
-            if($profile->getCollector('form')->getData()['nb_errors'] > 0)
-            {
-                var_dump($profile->getCollector('form')->getData()['forms']['test']['errors']);
-            }
-            $this->assertEquals(0,$profile->getCollector('form')->getData()['nb_errors']);
+        if ($this->client->getResponse()->isRedirection()) {
+            $crawler = $this->client->followRedirect();
         }
+        $this->client->enableProfiler();
+        $this->assertTrue($this->client->getResponse()->isSuccessful());
+        $profile = $this->client->getProfile()->getCollector('form');
+        $dataForm = $profile->getData();
+        $this->assertEquals(0, $dataForm['nb_errors']);
+        $this->assertTrue($container->get('session')->getFlashBag()->has('sonata_flash_success'));
         $id = $this->client->getRequest()->get('id');
         $this->assertTrue(null !== $id);
         return $id;

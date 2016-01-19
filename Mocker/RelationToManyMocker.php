@@ -5,7 +5,7 @@ namespace Algrin\SonataAdminTestsGeneratorBundle\Mocker;
 
 use Doctrine\ORM\EntityManager;
 
-class RelationToManyMocker implements MockerInterface
+class RelationToManyMocker extends AbstractMocker
 {
     /**
      * @var EntityManager
@@ -13,19 +13,31 @@ class RelationToManyMocker implements MockerInterface
     private $em;
 
     /**
-     * @param array $mapping
-     * @return mixed
-     * @throws \Exception is $mapping is empty
+     * @inheritdoc
      */
-    public function generate(array $mapping = []) {
-        if (empty($mapping)) {
+    public function generate() {
+        if (empty($this->mappingValues)) {
             throw new \Exception("The array mapping in relation mustn't be empty");
         }
-        $ids = array();
-        foreach ($this->em->getRepository($mapping['targetEntity'])->findBy([], null, 5) as $entity) {
-            $ids[] = $entity->getId();
+        if ($this->associationAdmin == NULL) {
+            throw new \Exception("The associationAdmin mustn't be null");
         }
-        return $ids;
+        $_data = array();
+        $mockers = $this->factoryMocker->getMockers();
+        $itemForm = $this->associationAdmin->getFormFieldDescriptions();
+        /**
+         * @var string $key
+         * @var \Sonata\DoctrineORMAdminBundle\Admin\FieldDescription $item
+         */
+        foreach ($itemForm as $key => $item) {
+            /** @var MockerInterface $mocker */
+            $mocker = $mockers[$item->getType()];
+            $mocker->setAssociationAdmins($item->getAssociationAdmin());
+            $mocker->setMappingValues($item->getAssociationMapping());
+            $mocker->setMappingType($item->getMappingType());
+            $_data[$key] = $mocker->generate();
+        }
+        return sprintf("json_decode('%s', true)", json_encode(array($_data)));
     }
 
     public function setEntityManager(EntityManager $em) {

@@ -5,8 +5,9 @@ namespace Algrin\SonataAdminTestsGeneratorBundle\Mocker;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Sonata\AdminBundle\Admin\Admin;
 
-class EntityMocker implements MockerInterface
+class EntityMocker extends  AbstractMocker
 {
     /**
      * @var EntityManager
@@ -14,20 +15,18 @@ class EntityMocker implements MockerInterface
     private $em;
 
     /**
-     * @param array $mapping
-     * @return mixed
-     * @throws \Exception is $mapping is empty
+     * @inheritdoc
      */
-    public function generate(array $mapping = []) {
-        if (empty($mapping)) {
+    public function generate() {
+        if (empty($this->mapping)) {
             throw new \Exception("The array mapping in relation mustn't be empty");
         }
-        if ($mapping['type'] == ClassMetadataInfo::ONE_TO_ONE || $mapping['type'] == ClassMetadataInfo::MANY_TO_ONE) {
-            $entity = $this->em->getRepository($mapping['targetEntity'])->findOneBy([]);
+        if ($this->mapping['type'] == ClassMetadataInfo::ONE_TO_ONE || $this->mapping['type'] == ClassMetadataInfo::MANY_TO_ONE) {
+            $entity = $this->em->getRepository($this->mapping['targetEntity'])->findOneBy([]);
             return $entity->getId();
         }
         else {
-            $entity = $this->em->getRepository($mapping['targetEntity'])->findBy([], null, 5);
+            $entity = $this->em->getRepository($this->mapping['targetEntity'])->findBy([], null, 5);
             $entities = array();
             foreach ($entity as $e) {
                 $entities[] = $e->getId();

@@ -4,13 +4,14 @@
 namespace Algrin\SonataAdminTestsGeneratorBundle\Mocker;
 
 
+use Sonata\AdminBundle\Admin\Admin;
+
 class LocaleMocker extends AbstractMocker
 {
     /**
-     * @param array $mapping
-     * @return string
+     * @inheritdoc
      */
-    public function generate(array $mapping = []) {
-        return $this->faker->locale;
+    public function generate() {
+        return sprintf('"%s"', $this->faker->locale);
     }
 }

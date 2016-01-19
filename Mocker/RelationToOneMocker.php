@@ -5,7 +5,7 @@ namespace Algrin\SonataAdminTestsGeneratorBundle\Mocker;
 
 use Doctrine\ORM\EntityManager;
 
-class RelationToOneMocker implements MockerInterface
+class RelationToOneMocker extends AbstractMocker
 {
     /**
      * @var EntityManager
@@ -13,17 +13,15 @@ class RelationToOneMocker implements MockerInterface
     private $em;
 
     /**
-     * @param array $mapping
-     * @return mixed
-     * @throws \Exception is $mapping is empty
+     * @inheritdoc
      */
-    public function generate(array $mapping = []) {
-        if (empty($mapping)) {
-            throw new \Exception("The array mapping in relation mustn't be empty");
+    public function generate() {
+        if (empty($this->mappingValues)) {
+            throw new \Exception("The array mapping in relation mustn't be empty in RelationToOneMocker");
         }
-        $entity = $this->em->getRepository($mapping['targetEntity'])->findOneBy([]);
+        $entity = $this->em->getRepository($this->mappingValues['targetEntity'])->findOneBy([]);
         if ($entity == NULL) {
-            throw new \Exception("No found some Entity for class [%s]", $mapping['targetEntity']);
+            throw new \Exception("No found some Entity for class [%s]", $this->mappingValues['targetEntity']);
         }
         return $entity->getId();
     }

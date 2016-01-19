@@ -16,6 +16,7 @@ class FactoryMocker
     }
 
     public function addMocker($name, MockerInterface $mocker) {
+        $mocker->setFactoryMocker($this);
         $this->mockers[$name] = $mocker;
     }
 

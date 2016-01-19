@@ -29,6 +29,7 @@
             </call>
             <tag name="sonata_admin_tests_generator" key="2" />
             <tag name="sonata_admin_tests_generator" key="1" />
+            <tag name="sonata_admin_tests_generator" key="sonata_type_model_list" />
         </service>
         <service id="algrin_sonata_admin_tests_generator.mocker.relation_to_many" class="Algrin\SonataAdminTestsGeneratorBundle\Mocker\RelationToManyMocker">
             <call method="setEntityManager">
@@ -43,6 +44,12 @@
                 <argument type="service" id="doctrine.orm.default_entity_manager" />
             </call>
             <tag name="sonata_admin_tests_generator" key="entity" />
+        </service>
+        <service id="algrin_sonata_admin_tests_generator.mocker.hidden" class="Algrin\SonataAdminTestsGeneratorBundle\Mocker\HiddenMocker">
+            <tag name="sonata_admin_tests_generator" key="hidden" />
+        </service>
+        <service id="algrin_sonata_admin_tests_generator.mocker.number" class="Algrin\SonataAdminTestsGeneratorBundle\Mocker\NumberMocker">
+            <tag name="sonata_admin_tests_generator" key="integer" />
         </service>
     </services>
 </container>
