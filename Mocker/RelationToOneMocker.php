@@ -21,7 +21,7 @@ class RelationToOneMocker extends AbstractMocker
         }
         $entity = $this->em->getRepository($this->mappingValues['targetEntity'])->findOneBy([]);
         if ($entity == NULL) {
-            throw new \Exception("No found some Entity for class [%s]", $this->mappingValues['targetEntity']);
+            throw new \Exception(sprintf("No found some Entity for class [%s]", $this->mappingValues['targetEntity']));
         }
         return $entity->getId();
     }

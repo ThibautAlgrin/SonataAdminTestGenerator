@@ -97,7 +97,12 @@ class {{ admin_name }}Test extends WebTestCase
 {% if field_desc.type == "sonata_type_collection" %}
         $this->assertEquals(0, $crawler->filter('[name="test[{{ field_name }}]"]')->count());
 {% else %}
+{% set mapping = field_desc.getAssociationMapping() %}
+{% if mapping is not null and mapping.type is defined and (mapping.type == constant('Doctrine\\ORM\\Mapping\\ClassMetadataInfo::ONE_TO_MANY') or mapping.type == constant('\\Doctrine\\ORM\\Mapping\\ClassMetadataInfo::MANY_TO_MANY')) %}
+        $this->assertEquals(1, $crawler->filter('[name="test[{{ field_name }}][]"]')->count());
+{% else %}
         $this->assertEquals(1, $crawler->filter('[name="test[{{ field_name }}]"]')->count());
+{% endif %}
 {% endif %}
 {% endfor %}
         $data = array();
@@ -122,13 +127,12 @@ class {{ admin_name }}Test extends WebTestCase
         $profile = $this->client->getProfile()->getCollector('form');
         $dataForm = $profile->getData();
         $this->assertEquals(0, $dataForm['nb_errors']);
-        $this->assertTrue($container->get('session')->getFlashBag()->has('sonata_flash_success'));
         $id = $this->client->getRequest()->get('id');
         $this->assertTrue(null !== $id);
         return $id;
     }
-    {% endif %}
-    {#{% if admin.hasRoute('show') %}
+{% endif %}
+{% if admin.hasRoute('show') %}
     /**
      * @depends testCreateIsSuccessfull
      */
@@ -136,52 +140,49 @@ class {{ admin_name }}Test extends WebTestCase
     {
         $container = $this->client->getContainer();
         $url = $container->get('router')->generate('{{ route_list["show"] }}', array(
-                    'id' => $id,
-                    'uniqid' => 'test'
-                )
+                'id' => $id,
+                'uniqid' => 'test'
             )
         );
         $crawler = $this->client->request(Request::METHOD_GET,$url);
         $this->assertTrue($this->client->getResponse()->isSuccessful());
         return $id;
     }
-    {% endif %}
-    {% if admin.hasRoute('edit') %}
+{% endif %}
+{% if admin.hasRoute('edit') %}
     /**
      * @depends testShowIsSuccessfull
      */
     public function testEditIsSuccessfull($id)
     {
         $container = $this->client->getContainer();
-        $url = sprintf('%s%s', $this->domain, $container->get('router')->generate('{{ route_list["edit"] }}', array(
+        $url = $container->get('router')->generate('{{ route_list["edit"] }}', array(
             'id' => $id,
-            'uniqid' => 'test'))
+            'uniqid' => 'test')
         );
         $crawler = $this->client->request(Request::METHOD_GET,$url);
         $this->assertTrue($this->client->getResponse()->isSuccessful());
         return $id;
     }
 
-    {% endif %}
-    {% if admin.hasRoute('delete') %}
+{% endif %}
+{% if admin.hasRoute('delete') %}
     /**
      * @depends testEditIsSuccessfull
      */
     public function testDeleteIsSuccessfull($id)
     {
         $container = $this->client->getContainer();
-        $url = sprintf('%s%s', $this->domain, $container->get('router')->generate('{{ route_list["delete"] }}', array(
+        $url = $container->get('router')->generate('{{ route_list["delete"] }}', array(
             'id' => $id,
-            'uniqid' => 'test'))
+            'uniqid' => 'test')
         );
         $crawler = $this->client->request(Request::METHOD_GET,$url);
         $this->assertTrue($this->client->getResponse()->isSuccessful());
-        $node = $crawler->filter('form')->first();
+        $node = $crawler->filter('form')->last();
         $crawler = $this->client->submit($node->form());
-        $this->assertTrue($container->get('session')->getFlashBag()->has('sonata_flash_success'));
         $crawler = $this->client->followRedirect();
         $this->assertTrue($this->client->getResponse()->isSuccessful());
     }
-    {% endif %}#}
-
+{% endif %}
 }

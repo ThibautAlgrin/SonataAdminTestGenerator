@@ -23,6 +23,19 @@
             <tag name="sonata_admin_tests_generator" key="locale" />
             <tag name="sonata_admin_tests_generator" key="sizannia_translation_locale_type" />
         </service>
+        <service id="algrin_sonata_admin_tests_generator.mocker.hidden" class="Algrin\SonataAdminTestsGeneratorBundle\Mocker\HiddenMocker">
+            <tag name="sonata_admin_tests_generator" key="hidden" />
+        </service>
+        <service id="algrin_sonata_admin_tests_generator.mocker.number" class="Algrin\SonataAdminTestsGeneratorBundle\Mocker\NumberMocker">
+            <tag name="sonata_admin_tests_generator" key="integer" />
+        </service>
+        <service id="algrin_sonata_admin_tests_generator.mocker.entity" class="Algrin\SonataAdminTestsGeneratorBundle\Mocker\EntityMocker">
+            <call method="setEntityManager">
+                <argument type="service" id="doctrine.orm.default_entity_manager" />
+            </call>
+            <tag name="sonata_admin_tests_generator" key="entity" />
+            <tag name="sonata_admin_tests_generator" key="8" />
+        </service>
         <service id="algrin_sonata_admin_tests_generator.mocker.relation_to_one" class="Algrin\SonataAdminTestsGeneratorBundle\Mocker\RelationToOneMocker">
             <call method="setEntityManager">
                 <argument type="service" id="doctrine.orm.default_entity_manager" />
@@ -32,24 +45,11 @@
             <tag name="sonata_admin_tests_generator" key="sonata_type_model_list" />
         </service>
         <service id="algrin_sonata_admin_tests_generator.mocker.relation_to_many" class="Algrin\SonataAdminTestsGeneratorBundle\Mocker\RelationToManyMocker">
-            <call method="setEntityManager">
-                <argument type="service" id="doctrine.orm.default_entity_manager" />
-            </call>
             <tag name="sonata_admin_tests_generator" key="4" />
-            <tag name="sonata_admin_tests_generator" key="8" />
             <tag name="sonata_admin_tests_generator" key="sonata_type_collection" />
         </service>
-        <service id="algrin_sonata_admin_tests_generator.mocker.entity" class="Algrin\SonataAdminTestsGeneratorBundle\Mocker\EntityMocker">
-            <call method="setEntityManager">
-                <argument type="service" id="doctrine.orm.default_entity_manager" />
-            </call>
-            <tag name="sonata_admin_tests_generator" key="entity" />
-        </service>
-        <service id="algrin_sonata_admin_tests_generator.mocker.hidden" class="Algrin\SonataAdminTestsGeneratorBundle\Mocker\HiddenMocker">
-            <tag name="sonata_admin_tests_generator" key="hidden" />
-        </service>
-        <service id="algrin_sonata_admin_tests_generator.mocker.number" class="Algrin\SonataAdminTestsGeneratorBundle\Mocker\NumberMocker">
-            <tag name="sonata_admin_tests_generator" key="integer" />
+        <service id="algrin_sonata_admin_tests_generator.mocker.json_array" class="Algrin\SonataAdminTestsGeneratorBundle\Mocker\JsonArrayMocker">
+            <tag name="sonata_admin_tests_generator" key="json_array" />
         </service>
     </services>
 </container>

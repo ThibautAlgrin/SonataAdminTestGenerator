@@ -10,6 +10,6 @@ class TextMocker extends AbstractMocker
      * @inheritdoc
      */
     public function generate() {
-        return sprintf('"%s"', implode(" ", $this->faker->words(20)));
+        return sprintf('"%s"', implode(" ", $this->faker->words(100)));
     }
 }

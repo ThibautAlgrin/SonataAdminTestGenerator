@@ -4,7 +4,8 @@
 namespace Algrin\SonataAdminTestsGeneratorBundle\Mocker;
 
 
-use Sonata\AdminBundle\Admin\Admin;
+use Algrin\SonataAdminTestsGeneratorBundle\Services\FactoryMocker;
+use Sonata\AdminBundle\Admin\AdminInterface;
 
 interface MockerInterface
 {
@@ -19,9 +20,9 @@ interface MockerInterface
     public function setMappingValues(array $mapping);
 
     /**
-     * @param Admin $associationAdmin
+     * @param AdminInterface $associationAdmin
      */
-    public function setAssociationAdmins(Admin $associationAdmin = null);
+    public function setAssociationAdmins(AdminInterface $associationAdmin = null);
 
     /**
      * @param FactoryMocker $factoryMocker

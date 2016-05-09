@@ -31,15 +31,25 @@ class GenerateCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $admin_code = $input->getArgument('admin_code');
-        $admin 	= $this->getContainer()->get($admin_code);
+        $admin = $this->getContainer()->get($admin_code);
+        $class = $admin->getClass();
+        $subject = new $class();
+        $admin->setSubject($subject);
         $bundleName = $this->getBundleNameFromClass($admin->getClass());
         $bundle = $this->getBundle($bundleName);
+
+        $admin_name = substr(get_class($admin), strripos(get_class($admin), '\\') + 1);
+        $filePath = sprintf('%s/Tests/Admin/%sTest.php', $bundle->getPath(), $admin_name);
+
         $generator = new SonataAdminTestsGenerator();
+        $generator->setFilePath($filePath);
+        $generator->setAdminName($admin_name);
+
         /** @var \Algrin\SonataAdminTestsGeneratorBundle\Mocker\FactoryMocker $factoryMocker */
-        $factoryMocker = $this->getContainer()->get('algrin_sonata_admin_tests_generator.factory_mocker');
-        $generator->setMockerFactory($factoryMocker->getMockers());
+        $factoryMocker = $this->getContainer()->get('algrin_sonata_admin_tests_generator.services.factory');
+        $generator->setMockers($factoryMocker->getMockers());
         $generator->setSkeletonDirs($this->skeletonDirectory);
-        $generator->generate($admin, $bundle);
+        $generator->generate($admin);
     }
 
     /**

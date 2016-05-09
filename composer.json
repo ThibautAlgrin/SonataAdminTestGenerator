@@ -4,10 +4,25 @@
     "license": "MIT",
     "minimum-stability": "dev", 
     "autoload": {
-        "psr-4": { "BVM\\SonataAdminTestsGeneratorBundle\\": "" }
+        "psr-4": { "Algrin\\SonataAdminTestsGeneratorBundle\\": "" }
+    },
+    "require": {
+        "fzaninotto/faker": "^1.5",
+        "sonata-project/doctrine-orm-admin-bundle": "2.3.*",
+        "sonata-project/admin-bundle": "2.3.*",
+        "doctrine/orm": "^2.4.8"
     },
     "require-dev": {
-        "fzaninotto/faker": "^1.5"
+        "symfony/phpunit-bridge": "~2.7",
+        "phpspec/phpspec": "~2.0",
+        "phpunit/phpunit": "4.8.*",
+        "symfony/property-access": "3.*"
+    },
+    "config": {
+        "bin-dir": "bin",
+        "platform": {
+            "php": "5.5.9"
+        }
     },
     "extra": {
         "branch-alias": {

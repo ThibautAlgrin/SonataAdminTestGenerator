@@ -12,6 +12,6 @@ class BooleanMocker extends AbstractMocker
      * @inheritdoc
      */
     public function generate() {
-        return sprintf('%s', ($this->faker->boolean() === true) ? 0 : 1);
+        return sprintf('"%s"', ($this->faker->boolean() === true ? 1 : 0));
     }
 }

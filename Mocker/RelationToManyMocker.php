@@ -3,15 +3,8 @@
 
 namespace Algrin\SonataAdminTestsGeneratorBundle\Mocker;
 
-use Doctrine\ORM\EntityManager;
-
 class RelationToManyMocker extends AbstractMocker
 {
-    /**
-     * @var EntityManager
-     */
-    private $em;
-
     /**
      * @inheritdoc
      */
@@ -38,9 +31,5 @@ class RelationToManyMocker extends AbstractMocker
             $_data[$key] = $mocker->generate();
         }
         return sprintf("json_decode('%s', true)", json_encode(array($_data)));
-    }
-
-    public function setEntityManager(EntityManager $em) {
-        $this->em = $em;
     }
 }

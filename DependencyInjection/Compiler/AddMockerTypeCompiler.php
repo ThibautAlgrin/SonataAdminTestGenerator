@@ -17,7 +17,7 @@ class AddMockerTypeCompiler implements CompilerPassInterface
             foreach ($item as $value) {
                 if (isset($value['key'])) {
                     $container
-                        ->getDefinition('algrin_sonata_admin_tests_generator.factory_mocker')
+                        ->getDefinition('algrin_sonata_admin_tests_generator.services.factory')
                         ->addMethodCall('addMocker', array($value['key'], $container->getDefinition($id)));
                 }
             }

@@ -3,8 +3,10 @@
 
 namespace Algrin\SonataAdminTestsGeneratorBundle\Mocker;
 
+use Algrin\SonataAdminTestsGeneratorBundle\Services\FactoryMocker;
 use Faker\Factory;
 use Sonata\AdminBundle\Admin\Admin;
+use Sonata\AdminBundle\Admin\AdminInterface;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
@@ -21,7 +23,7 @@ class AbstractMocker implements MockerInterface
     protected $mappingValues;
 
     /**
-     * @var Admin
+     * @var AdminInterface
      */
     protected $associationAdmin;
 
@@ -64,7 +66,7 @@ class AbstractMocker implements MockerInterface
     /**
      * @inheritdoc
      */
-    public function setAssociationAdmins(Admin $associationAdmin = null) {
+    public function setAssociationAdmins(AdminInterface $associationAdmin = null) {
         $this->associationAdmin = $associationAdmin;
     }
 

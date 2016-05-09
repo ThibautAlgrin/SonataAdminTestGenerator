@@ -1,8 +1,8 @@
 <?php
 
+namespace Algrin\SonataAdminTestsGeneratorBundle\Services;
 
-namespace Algrin\SonataAdminTestsGeneratorBundle\Mocker;
-
+use Algrin\SonataAdminTestsGeneratorBundle\Mocker\MockerInterface;
 
 class FactoryMocker
 {

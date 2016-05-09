@@ -13,27 +13,32 @@ class SonataAdminTestsGenerator extends Generator
     /**
      * @var array
      */
-    private $mockerFactory;
+    private $mockers;
+
+    /**
+     * @var string
+     */
+    private $filePath;
+
+    /**
+     * @var string
+     */
+    private $adminName;
 
 	/**
 	 * @param  Admin $admin
-	 * @param  BundleInterface $bundle
 	 * @return false | int
 	 */
-	public function generate(Admin $admin, BundleInterface $bundle)
+	public function generate(Admin $admin)
 	{
-		$admin_name = substr(get_class($admin), strripos(get_class($admin), '\\') + 1);
-		$filePath = sprintf('%s/Tests/Admin/%sTest.php',$bundle->getPath(), $admin_name);
-        $class = $admin->getClass();
-        $mock = new $class();
-        $admin->setSubject($mock);
 		$namespace = $this->getNamespace($admin);
         $data = $this->generateDatas($admin);
-		return $this->renderFile('AdminTests.php.twig', $filePath, array(
+
+		return $this->renderFile('AdminTests.php.twig', $this->filePath, array(
 			'admin' 		=> $admin,
-			'formBuilder'  => $admin->getFormBuilder(),
-            'listMapper'  => $admin->getList(),
-			'admin_name' 	=> $admin_name,
+			'formBuilder'   => $admin->getFormBuilder(),
+            'listMapper'    => $admin->getList(),
+			'admin_name' 	=> $this->adminName,
 			'namespace' 	=> $namespace,
             'fakeData'      => $data
 		));
@@ -46,11 +51,11 @@ class SonataAdminTestsGenerator extends Generator
          * @var FieldDescription $desc
          */
         foreach ($admin->getFormFieldDescriptions() as $name => $desc) {
-            if (!isset($this->mockerFactory[$desc->getType()])) {
+            if (!isset($this->mockers[$desc->getType()])) {
                 throw new \Exception(sprintf("The type [%s] is missing for %s", $desc->getType(), $name));
             }
             /** @var MockerInterface $mocker */
-            $mocker = $this->mockerFactory[$desc->getType()];
+            $mocker = $this->mockers[$desc->getType()];
             $mocker->setAssociationAdmins($desc->getAssociationAdmin());
             $mocker->setMappingValues($desc->getAssociationMapping());
             $mocker->setMappingType($desc->getMappingType());
@@ -60,11 +65,11 @@ class SonataAdminTestsGenerator extends Generator
     }
 
     /**
-     * @param array $mockerFactory
+     * @param array $mockers
      */
-    public function setMockerFactory(array $mockerFactory)
+    public function setMockers(array $mockers)
     {
-        $this->mockerFactory = $mockerFactory;
+        $this->mockers = $mockers;
     }
 
 	protected function getNamespace($admin)
@@ -75,4 +80,35 @@ class SonataAdminTestsGenerator extends Generator
 		return $namespace;
 	}
 
+    /**
+     * @return string
+     */
+    public function getFilePath()
+    {
+        return $this->filePath;
+    }
+
+    /**
+     * @param string $filePath
+     */
+    public function setFilePath($filePath)
+    {
+        $this->filePath = $filePath;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAdminName()
+    {
+        return $this->adminName;
+    }
+
+    /**
+     * @param string $adminName
+     */
+    public function setAdminName($adminName)
+    {
+        $this->adminName = $adminName;
+    }
 }

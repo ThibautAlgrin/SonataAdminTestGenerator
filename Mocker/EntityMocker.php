@@ -18,20 +18,20 @@ class EntityMocker extends  AbstractMocker
      * @inheritdoc
      */
     public function generate() {
-        if (empty($this->mapping)) {
+        if (empty($this->mappingValues)) {
             throw new \Exception("The array mapping in relation mustn't be empty");
         }
-        if ($this->mapping['type'] == ClassMetadataInfo::ONE_TO_ONE || $this->mapping['type'] == ClassMetadataInfo::MANY_TO_ONE) {
-            $entity = $this->em->getRepository($this->mapping['targetEntity'])->findOneBy([]);
-            return $entity->getId();
+        if ($this->mappingValues['type'] == ClassMetadataInfo::ONE_TO_ONE || $this->mappingValues['type'] == ClassMetadataInfo::MANY_TO_ONE) {
+            $entity = $this->em->getRepository($this->mappingValues['targetEntity'])->findOneBy([]);
+            return sprintf('"%s"', $entity->getId());
         }
         else {
-            $entity = $this->em->getRepository($this->mapping['targetEntity'])->findBy([], null, 5);
+            $entity = $this->em->getRepository($this->mappingValues['targetEntity'])->findBy([], null, 5);
             $entities = array();
             foreach ($entity as $e) {
                 $entities[] = $e->getId();
             }
-            return $entities;
+            return json_encode($entities);
         }
     }
 
