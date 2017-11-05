@@ -14,6 +14,7 @@
         <service id="algrin_sonata_admin_tests_generator.mocker.text" class="Algrin\SonataAdminTestsGeneratorBundle\Mocker\TextMocker">
             <tag name="sonata_admin_tests_generator" key="text" />
             <tag name="sonata_admin_tests_generator" key="sonata_simple_formatter_type" />
+            <tag name="sonata_admin_tests_generator" key="sizannia_editor_type" />
         </service>
         <service id="algrin_sonata_admin_tests_generator.mocker.date" class="Algrin\SonataAdminTestsGeneratorBundle\Mocker\DateMocker">
             <tag name="sonata_admin_tests_generator" key="sonata_type_date_picker" />
@@ -50,6 +51,9 @@
         </service>
         <service id="algrin_sonata_admin_tests_generator.mocker.json_array" class="Algrin\SonataAdminTestsGeneratorBundle\Mocker\JsonArrayMocker">
             <tag name="sonata_admin_tests_generator" key="json_array" />
+        </service>
+        <service id="algrin_sonata_admin_tests_generator.mocker.url" class="Algrin\SonataAdminTestsGeneratorBundle\Mocker\UrlMocker">
+            <tag name="sonata_admin_tests_generator" key="url" />
         </service>
     </services>
 </container>
